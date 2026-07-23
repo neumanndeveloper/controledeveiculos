@@ -357,9 +357,7 @@ const dados = {
 // ENVIA PARA O GOOGLE SHEETS
 fetch("https://script.google.com/macros/s/AKfycbxtKkrukmIB2ktR_7jbZn0rmsuDWmEtxTMJ-m3sIUiQbhGpmaJKzblzlxBebOtMLXweVA/exec",{
     method:"POST",
-    headers:{
-        "Content-Type":"application/json"
-    },
+    
     body:JSON.stringify(dados)
 })
 .then(r=>r.text())
