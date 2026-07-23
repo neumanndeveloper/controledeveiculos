@@ -305,94 +305,72 @@ const URL_DO_SEU_APPS_SCRIPT =
 
 document
 .getElementById("btnSalvar")
-.onclick=function(){
+.onclick = function() {
 
-if(assinatura.isEmpty()){
+    if(assinatura.isEmpty()){
+        alert("Assine antes de salvar.");
+        return;
+    }
 
-alert("Assine antes de salvar.");
+    const kmSaida = Number(document.getElementById("kmSaida").value);
+    const kmChegada = Number(document.getElementById("kmChegada").value);
+    
+    if(kmChegada && kmChegada < kmSaida){
+        alert("O KM de chegada não pode ser menor que o KM de saída.");
+        return;
+    }
 
-return;
+    const dados = {
+        secretaria: document.getElementById("secretaria").value,
+        veiculo: document.getElementById("veiculo").value,
+        placa: document.getElementById("placa").value,
+        data: document.getElementById("data").value,
+        horaSaida: document.getElementById("horaSaida").value,
+        kmSaida: document.getElementById("kmSaida").value,
+        destino: document.getElementById("destino").value,
+        horaChegada: document.getElementById("horaChegada").value,
+        kmChegada: document.getElementById("kmChegada").value,
+        condutor: document.getElementById("condutor").value,
+        matricula: document.getElementById("matricula").value,
+        requisicao: document.getElementById("requisicao").value,
+        assinatura: assinatura.toDataURL()
+    };
 
-}
+    // ENVIA PARA O GOOGLE SHEETS
+    const form = new FormData();
+    Object.entries(dados).forEach(([chave, valor]) => {
+        form.append(chave, valor);
+    });
 
-const kmSaida =
-Number(document.getElementById("kmSaida").value);
-const kmChegada =
-Number(document.getElementById("kmChegada").value);
-if(kmChegada && kmChegada < kmSaida){
- alert("O KM de chegada não pode ser menor que o KM de saída.");
- return;
-}
-
-const dados = {
-
-    secretaria:document.getElementById("secretaria").value,
-
-    veiculo:document.getElementById("veiculo").value,
-
-    placa:document.getElementById("placa").value,
-
-    data:document.getElementById("data").value,
-
-    horaSaida:document.getElementById("horaSaida").value,
-
-    kmSaida:document.getElementById("kmSaida").value,
-
-    destino:document.getElementById("destino").value,
-
-    horaChegada:document.getElementById("horaChegada").value,
-
-    kmChegada:document.getElementById("kmChegada").value,
-
-    condutor:document.getElementById("condutor").value,
-
-    matricula:document.getElementById("matricula").value,
-
-    requisicao:document.getElementById("requisicao").value,
-
-    assinatura:assinatura.toDataURL()
-
-};
-
-// ENVIA PARA O GOOGLE SHEETS
-const form = new FormData();
-
-Object.entries(dados).forEach(([chave, valor]) => {
-    form.append(chave, valor);
-});
-
-fetch(URL_DO_SEU_APPS_SCRIPT, {
-    method: "POST",
-    body: form
-})
-.then(r => r.text())
-.then(r => {
-    console.log(r);
-})
-.catch(err => {
-    console.error(err);
-});
-
-    // Limpa somente depois de salvar
-    document.getElementById("horaChegada").value="";
-    document.getElementById("kmChegada").value="";
-    document.getElementById("kmSaida").value="";
-    document.getElementById("destino").value="";
-    document.getElementById("condutor").value="";
-    document.getElementById("matricula").value="";
-    document.getElementById("requisicao").value="";
-    assinatura.clear();
-
-    alert("Registro salvo com sucesso!");
-
-})
-.catch(e=>{
-
-    console.error(e);
-
-    alert("Erro ao salvar no Google Sheets.");
-
-});
+    // O segredo aqui é o "redirect: 'follow'"
+    fetch(URL_DO_SEU_APPS_SCRIPT, {
+        method: "POST",
+        body: form,
+        redirect: "follow" // OBRIGATÓRIO PARA O GOOGLE APPS SCRIPT
+    })
+    .then(r => r.text())
+    .then(resposta => {
+        
+        // Só limpa e avisa o usuário SE o Google disse que deu certo
+        if(resposta.trim() === "OK") {
+            document.getElementById("horaChegada").value = "";
+            document.getElementById("kmChegada").value = "";
+            document.getElementById("kmSaida").value = "";
+            document.getElementById("destino").value = "";
+            document.getElementById("condutor").value = "";
+            document.getElementById("matricula").value = "";
+            document.getElementById("requisicao").value = "";
+            assinatura.clear();
+            alert("Registro salvo com sucesso!");
+        } else {
+            // Se o Code.gs retornar "ERRO: ...", cai aqui
+            alert("Erro ao salvar: " + resposta);
+        }
+    })
+    .catch(erro => {
+        console.error(erro);
+        alert("Erro de rede. Não foi possível conectar ao Google Sheets.");
+    });
 
 };
 
