@@ -355,15 +355,23 @@ const dados = {
 };
 
 // ENVIA PARA O GOOGLE SHEETS
-fetch("https://script.google.com/macros/s/AKfycbxtKkrukmIB2ktR_7jbZn0rmsuDWmEtxTMJ-m3sIUiQbhGpmaJKzblzlxBebOtMLXweVA/exec",{
-    method:"POST",
-    
-    body:JSON.stringify(dados)
-})
-.then(r=>r.text())
-.then(r=>{
+const form = new FormData();
 
+Object.entries(dados).forEach(([chave, valor]) => {
+    form.append(chave, valor);
+});
+
+fetch(URL_DO_SEU_APPS_SCRIPT, {
+    method: "POST",
+    body: form
+})
+.then(r => r.text())
+.then(r => {
     console.log(r);
+})
+.catch(err => {
+    console.error(err);
+});
 
     // Limpa somente depois de salvar
     document.getElementById("horaChegada").value="";
