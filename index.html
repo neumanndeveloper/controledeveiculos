@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Controle de Veículos</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<link rel="stylesheet" href="css/style.css">
+
+<style>
+
+body{
+    background:#f2f5f9;
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+.card{
+    border:none;
+    border-radius:16px;
+    box-shadow:0 5px 20px rgba(0,0,0,.08);
+}
+
+.logo{
+    width:80px;
+}
+
+canvas{
+    width:100%;
+    height:220px;
+    border:2px dashed #999;
+    border-radius:10px;
+    background:white;
+    touch-action:none;
+}
+
+.btn-primary{
+    height:55px;
+    font-size:18px;
+    font-weight:bold;
+}
+
+</style>
+
+</head>
+<body>
+
+<div class="container py-4">
+
+<div class="row justify-content-center">
+
+<div class="col-lg-8">
+
+<div class="card">
+
+<div class="card-body">
+
+<h2 class="text-center mb-4">
+🚗 Controle de Veículos
+</h2>
+
+<hr>
+
+<h5>Dados do Veículo</h5>
+
+<div class="row">
+
+<div class="col-md-4 mb-3">
+<label>Secretaria</label>
+<input
+id="secretaria"
+class="form-control"
+value="SMDSM"
+readonly>
+</div>
+
+<div class="col-md-4 mb-3">
+<label>Veículo</label>
+<input
+id="veiculo"
+class="form-control"
+value="Honda CG150"
+readonly>
+</div>
+
+<div class="col-md-4 mb-3">
+<label>Placa</label>
+<input
+id="placa"
+class="form-control"
+value="ABC-1234"
+readonly>
+</div>
+
+</div>
+
+<hr>
+
+<h5>Saída</h5>
+
+<div class="row">
+
+<div class="col-md-4 mb-3">
+<label>Data</label>
+<input
+type="date"
+id="data"
+class="form-control">
+</div>
+
+<div class="col-md-4 mb-3">
+<label>Hora Saída</label>
+<input
+type="time"
+id="horaSaida"
+class="form-control">
+</div>
+
+<div class="col-md-4 mb-3">
+<label>KM Saída</label>
+<input
+type="number"
+id="kmSaida"
+class="form-control">
+</div>
+
+</div>
+
+<div class="mb-3">
+
+<label>Destino</label>
+
+<input
+type="text"
+id="destino"
+class="form-control"
+placeholder="Informe o destino">
+
+</div>
+
+<hr>
+
+<h5>Chegada</h5>
+
+<div class="row">
+
+<div class="col-md-6 mb-3">
+
+<label>Hora Chegada</label>
+
+<input
+type="time"
+id="horaChegada"
+class="form-control">
+
+</div>
+
+<div class="col-md-6 mb-3">
+
+<label>KM Chegada</label>
+
+<input
+type="number"
+id="kmChegada"
+class="form-control">
+
+</div>
+
+</div>
+
+<hr>
+
+<h5>Condutor</h5>
+
+<div class="row">
+
+<div class="col-md-6 mb-3">
+
+<label>Nome</label>
+
+<input
+type="text"
+id="condutor"
+class="form-control">
+
+</div>
+
+<div class="col-md-6 mb-3">
+
+<label>Matrícula</label>
+
+<input
+type="text"
+id="matricula"
+class="form-control">
+
+</div>
+
+</div>
+
+<div class="mb-3">
+
+<label>Nº da Requisição</label>
+
+<input
+type="text"
+id="requisicao"
+class="form-control">
+
+</div>
+
+<hr>
+
+<h5>Assinatura</h5>
+
+<canvas id="assinatura"></canvas>
+
+<div class="d-grid gap-2 mt-3">
+
+<button
+class="btn btn-secondary"
+id="btnLimpar">
+
+Limpar Assinatura
+
+</button>
+
+</div>
+
+<hr>
+
+<div class="d-grid mt-4">
+
+<button
+id="btnSalvar"
+class="btn btn-primary">
+
+💾 Salvar Registro
+
+</button>
+
+</div>
+
+<div
+id="mensagem"
+class="alert alert-success mt-3 d-none">
+
+Registro salvo com sucesso.
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/signature_pad@4.1.7/dist/signature_pad.umd.min.js"></script>
+
+<script>
+
+const canvas=document.getElementById("assinatura");
+
+const assinatura=new SignaturePad(canvas,{
+backgroundColor:"rgb(255,255,255)"
+});
+
+function resizeCanvas(){
+
+const ratio=Math.max(window.devicePixelRatio||1,1);
+
+canvas.width=canvas.offsetWidth*ratio;
+
+canvas.height=220*ratio;
+
+canvas.getContext("2d").scale(ratio,ratio);
+
+assinatura.clear();
+
+}
+
+window.addEventListener("resize",resizeCanvas);
+
+resizeCanvas();
+
+const hoje = new Date();
+document.getElementById("data").value =
+hoje.toISOString().split("T")[0];
+document.getElementById("horaSaida").value =
+hoje.toTimeString().slice(0,5);
+
+document
+.getElementById("btnLimpar")
+.onclick=()=>assinatura.clear();
+
+const URL_DO_SEU_APPS_SCRIPT =
+"https://script.google.com/macros/s/AKfycbxtKkrukmIB2ktR_7jbZn0rmsuDWmEtxTMJ-m3sIUiQbhGpmaJKzblzlxBebOtMLXweVA/exec";
+//Código de implantação AKfycbxtKkrukmIB2ktR_7jbZn0rmsuDWmEtxTMJ-m3sIUiQbhGpmaJKzblzlxBebOtMLXweVA
+
+document
+.getElementById("btnSalvar")
+.onclick=function(){
+
+if(assinatura.isEmpty()){
+
+alert("Assine antes de salvar.");
+
+return;
+
+}
+
+const kmSaida =
+Number(document.getElementById("kmSaida").value);
+const kmChegada =
+Number(document.getElementById("kmChegada").value);
+if(kmChegada && kmChegada < kmSaida){
+ alert("O KM de chegada não pode ser menor que o KM de saída.");
+ return;
+}
+
+const dados = {
+
+    secretaria:document.getElementById("secretaria").value,
+
+    veiculo:document.getElementById("veiculo").value,
+
+    placa:document.getElementById("placa").value,
+
+    data:document.getElementById("data").value,
+
+    horaSaida:document.getElementById("horaSaida").value,
+
+    kmSaida:document.getElementById("kmSaida").value,
+
+    destino:document.getElementById("destino").value,
+
+    horaChegada:document.getElementById("horaChegada").value,
+
+    kmChegada:document.getElementById("kmChegada").value,
+
+    condutor:document.getElementById("condutor").value,
+
+    matricula:document.getElementById("matricula").value,
+
+    requisicao:document.getElementById("requisicao").value,
+
+    assinatura:assinatura.toDataURL()
+
+};
+
+// ENVIA PARA O GOOGLE SHEETS
+fetch("https://script.google.com/macros/s/AKfycbxtKkrukmIB2ktR_7jbZn0rmsuDWmEtxTMJ-m3sIUiQbhGpmaJKzblzlxBebOtMLXweVA/exec",{
+    method:"POST",
+    headers:{
+        "Content-Type":"application/json"
+    },
+    body:JSON.stringify(dados)
+})
+.then(r=>r.text())
+.then(r=>{
+
+    console.log(r);
+
+    // Limpa somente depois de salvar
+    document.getElementById("horaChegada").value="";
+    document.getElementById("kmChegada").value="";
+    document.getElementById("kmSaida").value="";
+    document.getElementById("destino").value="";
+    document.getElementById("condutor").value="";
+    document.getElementById("matricula").value="";
+    document.getElementById("requisicao").value="";
+    assinatura.clear();
+
+    alert("Registro salvo com sucesso!");
+
+})
+.catch(e=>{
+
+    console.error(e);
+
+    alert("Erro ao salvar no Google Sheets.");
+
+});
+
+};
+
+</script>
+</body>
+</html>
